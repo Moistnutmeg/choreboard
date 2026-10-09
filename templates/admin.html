@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/static/choreboard_icon.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chore Chart Admin</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #fdf0f5;
+  --card: #ffffff;
+  --accent: #c8955a;
+  --accent2: #e0609a;
+  --gold: #c9a227;
+  --text: #3a1020;
+  --muted: #9a6070;
+  --border: rgba(200,149,90,0.25);
+  --success: #2d9e5f;
+}
+body { background: var(--bg); font-family: -apple-system, 'Segoe UI', sans-serif; color: var(--text); min-height: 100vh; }
+
+header {
+  background: white;
+  border-bottom: 2px solid var(--border);
+  padding: 16px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+}
+.logo { font-size: 20px; font-weight: 800; color: var(--text); }
+.logo span { color: var(--accent); }
+.save-all-btn {
+  background: var(--accent); border: none; border-radius: 10px;
+  padding: 10px 24px; color: white; font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+}
+.save-all-btn:hover { opacity: 0.88; }
+.save-all-btn:active { opacity: 0.7; }
+
+.toast {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  background: var(--success); color: white; padding: 10px 24px;
+  border-radius: 20px; font-size: 14px; font-weight: 600;
+  opacity: 0; transition: opacity 0.3s; z-index: 100; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+main { max-width: 780px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 20px; }
+
+.card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+.card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.card-header h2 { font-size: 15px; font-weight: 700; color: var(--text); }
+.card-header .badge { background: var(--accent); color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.card-header .badge.weekly { background: var(--accent2); }
+.card-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+.field-row { display: flex; flex-direction: column; gap: 5px; }
+.field-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.field-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 10px 14px;
+  color: var(--text); font-size: 15px;
+  font-family: inherit; outline: none;
+  background: #fdf8f0;
+  transition: border-color 0.15s;
+}
+.field-input:focus { border-color: var(--gold); }
+
+.chore-list { display: flex; flex-direction: column; gap: 8px; }
+.chore-row { display: flex; align-items: center; gap: 8px; }
+.chore-num { font-size: 12px; font-weight: 700; color: var(--muted); width: 18px; flex-shrink: 0; text-align: right; }
+.em-inp {
+  width: 50px; flex-shrink: 0;
+  border: 1.5px solid var(--border); border-radius: 9px;
+  padding: 9px 4px; font-size: 20px; text-align: center;
+  font-family: inherit; outline: none; background: #fdf8f0;
+  transition: border-color 0.15s;
+}
+.em-inp:focus { border-color: var(--gold); }
+.cn-inp {
+  flex: 1;
+  border: 1.5px solid var(--border); border-radius: 9px;
+  padding: 10px 12px; font-size: 14px; font-weight: 600;
+  font-family: inherit; outline: none; background: #fdf8f0;
+  transition: border-color 0.15s; color: var(--text);
+}
+.cn-inp:focus { border-color: var(--gold); }
+
+.preview-strip {
+  background: linear-gradient(135deg, #fde8f0, #fef5e4);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px;
+}
+.preview-strip .plabel { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
+.preview-chores { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.preview-chip { background: white; border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast">✓ Saved!</div>
+
+<header>
+  <div class="logo">✨ Chore Chart <span>Admin</span></div>
+  <button class="save-all-btn" onclick="saveAll()">Save Changes</button>
+</header>
+
+<main>
+
+  <!-- NAME -->
+  <div class="card">
+    <div class="card-header">
+      <h2>👧 Child's Name</h2>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field-label">Name shown on the chart</div>
+        <input class="field-input" id="child-name" type="text" maxlength="20" placeholder="e.g. LittleNugget">
+      </div>
+    </div>
+  </div>
+
+  <!-- DAILY -->
+  <div class="card">
+    <div class="card-header">
+      <h2>☀️ Daily Chores</h2>
+      <span class="badge">resets every day</span>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field-label">🎁 Daily reward</div>
+        <input class="field-input" id="daily-reward" type="text" maxlength="40" placeholder="e.g. 🍦 Ice Cream!">
+      </div>
+      <div class="field-row">
+        <div class="field-label">✅ Chores</div>
+        <div class="chore-list" id="daily-chores"></div>
+      </div>
+      <div class="preview-strip" id="daily-preview">
+        <div>
+          <div class="plabel">Preview</div>
+          <div class="preview-chores" id="daily-preview-chips"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEKLY -->
+  <div class="card">
+    <div class="card-header">
+      <h2>📅 Weekly Chores</h2>
+      <span class="badge weekly">resets every Monday</span>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field-label">🎁 Weekly reward</div>
+        <input class="field-input" id="weekly-reward" type="text" maxlength="40" placeholder="e.g. 🎬 Movie Night!">
+      </div>
+      <div class="field-row">
+        <div class="field-label">✅ Chores</div>
+        <div class="chore-list" id="weekly-chores"></div>
+      </div>
+      <div class="preview-strip">
+        <div>
+          <div class="plabel">Preview</div>
+          <div class="preview-chores" id="weekly-preview-chips"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+let config = null;
+
+async function loadConfig() {
+  const res = await fetch('/api/config');
+  config = await res.json();
+  populate();
+}
+
+function buildChoreList(containerId, chores, type) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  chores.forEach((c, i) => {
+    const row = document.createElement('div');
+    row.className = 'chore-row';
+    row.innerHTML =
+      '<span class="chore-num">' + (i+1) + '</span>' +
+      '<input class="em-inp" id="' + type + '-em-' + i + '" type="text" maxlength="2" value="' + esc(c.emoji) + '" oninput="updatePreview(\'' + type + '\')">' +
+      '<input class="cn-inp" id="' + type + '-cn-' + i + '" type="text" maxlength="28" value="' + esc(c.name) + '" placeholder="Chore name" oninput="updatePreview(\'' + type + '\')">';
+    el.appendChild(row);
+  });
+  updatePreview(type);
+}
+
+function updatePreview(type) {
+  const chips = document.getElementById(type + '-preview-chips');
+  chips.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const em = document.getElementById(type + '-em-' + i);
+    const cn = document.getElementById(type + '-cn-' + i);
+    if (!em || !cn) continue;
+    const chip = document.createElement('div');
+    chip.className = 'preview-chip';
+    chip.textContent = (em.value || '?') + ' ' + (cn.value || 'Chore ' + (i+1));
+    chips.appendChild(chip);
+  }
+}
+
+function populate() {
+  document.getElementById('child-name').value   = config.child_name || '';
+  document.getElementById('daily-reward').value  = config.daily.reward || '';
+  document.getElementById('weekly-reward').value = config.weekly.reward || '';
+  buildChoreList('daily-chores',  config.daily.chores,  'daily');
+  buildChoreList('weekly-chores', config.weekly.chores, 'weekly');
+}
+
+function readChores(type) {
+  return Array.from({length: 6}, (_, i) => ({
+    emoji: (document.getElementById(type + '-em-' + i).value.trim() || config[type].chores[i].emoji),
+    name:  (document.getElementById(type + '-cn-' + i).value.trim() || config[type].chores[i].name),
+  }));
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+async function saveAll() {
+  const newConfig = {
+    child_name: document.getElementById('child-name').value.trim() || config.child_name,
+    daily: {
+      reward: document.getElementById('daily-reward').value.trim() || config.daily.reward,
+      chores: readChores('daily'),
+    },
+    weekly: {
+      reward: document.getElementById('weekly-reward').value.trim() || config.weekly.reward,
+      chores: readChores('weekly'),
+    }
+  };
+  await fetch('/api/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newConfig),
+  });
+  config = newConfig;
+  showToast();
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+loadConfig();
+</script>
+</body>
+</html>

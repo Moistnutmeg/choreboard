@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/static/choreboard_icon.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LittleNugget's Chores">
+<title>LittleNugget's Chore Chart ✨</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg:          #fde8f0;
+  --panel:       #fad0e2;
+  --accent:      #c8955a;
+  --accent-soft: #d4aa70;
+  --text:        #5a1a35;
+  --text-mid:    #8a3a5a;
+  --text-muted:  #b06080;
+  --card-bg:     rgba(255,255,255,0.55);
+  --card-border: rgba(200,149,90,0.22);
+  --done-bg:     rgba(200,149,90,0.15);
+  --done-border: #c8955a;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  font-family: -apple-system, 'SF Pro Rounded', sans-serif;
+  overflow: hidden;
+  color: var(--text);
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: -webkit-fill-available;
+}
+
+/* HEADER */
+.header {
+  flex-shrink: 0;
+  padding: 8px 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-title { display: flex; flex-direction: column; gap: 0px; }
+.title-sub  { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.title-main { font-size: 16px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
+
+.refresh-btn {
+  background: rgba(200,149,90,0.12);
+  border: 1.5px solid rgba(200,149,90,0.35);
+  border-radius: 10px;
+  padding: 5px 11px;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+}
+.refresh-btn:active { opacity: 0.6; transform: scale(0.92); }
+
+/* TABS */
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: rgba(200,149,90,0.1);
+  border: 1.5px solid rgba(200,149,90,0.25);
+  border-radius: 13px;
+  padding: 3px;
+  gap: 3px;
+}
+.tab {
+  border-radius: 10px;
+  padding: 5px 0;
+  text-align: center;
+  font-size: 12px; font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  -webkit-user-select: none; user-select: none;
+}
+.tab.active { background: var(--accent); color: #fff; }
+.tab .tab-reset { font-size: 9px; font-weight: 500; opacity: 0.75; display: block; }
+
+/* CONTENT */
+.content {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 145px;
+  padding: 7px 14px 8px;
+  gap: 10px;
+}
+
+.left { display: flex; flex-direction: column; gap: 7px; min-height: 0; }
+
+.reward-strip {
+  background: rgba(212,170,100,0.12);
+  border: 1.5px solid rgba(212,170,100,0.35);
+  border-radius: 13px;
+  padding: 5px 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.rlabel { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1px; }
+.rvalue { font-size: 13px; font-weight: 700; color: var(--text); }
+
+/* CHORE GRID */
+.chore-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
+.chore-card {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: 13px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 4px; cursor: pointer;
+  transition: transform 0.12s, background 0.18s, border-color 0.18s;
+  position: relative;
+  padding: 6px 8px; text-align: center;
+  -webkit-user-select: none; user-select: none;
+}
+.chore-card:active { transform: scale(0.92); }
+.chore-card.done { background: var(--done-bg); border-color: var(--done-border); }
+.chore-emoji { font-size: 20px; line-height: 1; }
+.chore-name  { font-size: 10px; font-weight: 700; color: var(--text); line-height: 1.2; }
+.tick {
+  position: absolute; top: 5px; right: 5px;
+  width: 17px; height: 17px; border-radius: 50%;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; opacity: 0; transition: opacity 0.18s;
+}
+.chore-card.done .tick { opacity: 1; }
+
+/* COMPLETE BANNER */
+.complete-banner {
+  flex: 1; min-height: 0;
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(240,180,200,0.45), rgba(212,170,100,0.2));
+  border: 2px solid rgba(212,170,100,0.5);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 8px; padding: 18px; text-align: center;
+}
+.complete-banner.show { display: flex; }
+.big-emoji  { font-size: 38px; line-height: 1; }
+.congrats   { font-size: 17px; font-weight: 800; color: var(--text); }
+.reward-won { font-size: 15px; font-weight: 700; color: var(--accent-soft); }
+.reward-sub { font-size: 12px; color: var(--text-mid); }
+.reset-btn {
+  margin-top: 4px;
+  background: rgba(212,170,100,0.18);
+  border: 1.5px solid rgba(212,170,100,0.4);
+  border-radius: 11px; padding: 9px 22px;
+  color: var(--text); font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+}
+.reset-btn:active { opacity: 0.7; }
+
+/* FLASK PANEL */
+.right {
+  background: rgba(255,255,255,0.45);
+  border: 1.5px solid rgba(200,149,90,0.35);
+  border-radius: 16px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px; padding: 8px 6px;
+}
+.flask-title { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.09em; text-align: center; }
+.flask-count { font-size: 24px; font-weight: 800; color: var(--text); line-height: 1; }
+.flask-of    { font-size: 9px; color: var(--text-muted); }
+.flask-svg   { width: 80px; flex-shrink: 0; }
+.flask-msg   { font-size: 9px; color: var(--text-muted); text-align: center; min-height: 11px; padding: 0 4px; }
+
+.loading { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text-muted); z-index: 999; }
+
+@keyframes pop { 0%{opacity:0;transform:scale(0) rotate(0deg) translate(var(--tx),var(--ty))} 45%{opacity:1;transform:scale(1.3) rotate(150deg) translate(var(--tx),var(--ty))} 100%{opacity:0;transform:scale(0.4) rotate(310deg) translate(var(--tx),var(--ty))} }
+.spark { position: fixed; pointer-events: none; font-size: 17px; z-index: 500; animation: pop 0.75s ease-out forwards; }
+
+/* BLACKOUT */
+.blackout {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.blackout.active { display: -webkit-flex; display: flex; }
+.wake-btn {
+  background: #444;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 28px;
+  color: #ccc;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.wake-btn:active { background: #555; }
+
+.sleep-btn {
+  background: rgba(200,149,90,0.12);
+  border: 1.5px solid rgba(200,149,90,0.35);
+  border-radius: 10px;
+  padding: 5px 11px;
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-weight: 600;
+}
+.sleep-btn:active { opacity: 0.6; }
+</style>
+</head>
+<body>
+
+<div class="blackout" id="blackout">
+  <button class="wake-btn" onclick="document.getElementById('blackout').classList.remove('active')">Wake</button>
+</div>
+
+<div class="loading" id="loading">✨ Loading...</div>
+
+<div class="app" style="opacity:0;transition:opacity 0.3s" id="app">
+  <div class="header">
+    <div class="top-bar">
+      <div class="app-title">
+        <div class="title-sub">✨ chore chart</div>
+        <div class="title-main" id="name-display">LittleNugget's Jobs</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button class="sleep-btn" onclick="document.getElementById('blackout').classList.add('active')">🌙</button>
+        <button class="refresh-btn" onclick="window.location.reload(true)">🔄</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" id="tab-daily" onclick="switchTab('daily')">
+        ☀️ Daily
+        <span class="tab-reset" id="daily-reset-label">resets each day</span>
+      </div>
+      <div class="tab" id="tab-weekly" onclick="switchTab('weekly')">
+        📅 Weekly
+        <span class="tab-reset">resets Friday</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="left">
+      <div class="reward-strip">
+        <div class="rlabel">Fill the flask to earn</div>
+        <div class="rvalue" id="reward-display"></div>
+      </div>
+      <div class="chore-grid" id="chore-grid"></div>
+      <div class="complete-banner" id="complete-banner">
+        <div class="big-emoji">🎉🌟🎉</div>
+        <div class="congrats" id="congrats-name">You did it, LittleNugget!</div>
+        <div class="reward-sub">You earned:</div>
+        <div class="reward-won" id="reward-won"></div>
+        <button class="reset-btn" onclick="manualReset()">Start Again ✨</button>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="flask-title">Magic<br>Flask</div>
+      <div class="flask-count" id="done-count">0</div>
+      <div class="flask-of">out of 6</div>
+      <svg class="flask-svg" viewBox="0 0 110 220" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="flask-clip"><path d="M44,18 L44,70 L10,168 L10,200 Q10,208 55,208 Q100,208 100,200 L100,168 L66,70 L66,18 Z"/></clipPath>
+          <linearGradient id="liq-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f9c4d8"/><stop offset="50%" stop-color="#e8a070"/><stop offset="100%" stop-color="#c8793a"/></linearGradient>
+          <linearGradient id="shine-g" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(255,255,255,0.0)"/><stop offset="28%" stop-color="rgba(255,255,255,0.35)"/><stop offset="100%" stop-color="rgba(200,120,80,0.06)"/></linearGradient>
+          <linearGradient id="gold-rim" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#b8860b"/><stop offset="40%" stop-color="#f5d67a"/><stop offset="70%" stop-color="#d4a840"/><stop offset="100%" stop-color="#b8860b"/></linearGradient>
+          <linearGradient id="gold-neck" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c9a227"/><stop offset="50%" stop-color="#f5e090"/><stop offset="100%" stop-color="#c9a227"/></linearGradient>
+        </defs>
+        <path d="M44,18 L44,70 L10,168 L10,200 Q10,208 55,208 Q100,208 100,200 L100,168 L66,70 L66,18" fill="rgba(252,210,225,0.45)" stroke="url(#gold-rim)" stroke-width="2" stroke-linejoin="round"/>
+        <g clip-path="url(#flask-clip)">
+          <rect id="liq" x="10" y="208" width="90" height="0" fill="url(#liq-g)"/>
+          <ellipse id="liq-surf" cx="55" cy="208" rx="10" ry="4" fill="rgba(249,196,216,0.6)" opacity="0"/>
+          <circle id="bub1" cx="26" cy="280" r="4" fill="rgba(255,255,255,0.38)"/>
+          <circle id="bub2" cx="76" cy="280" r="3" fill="rgba(255,220,180,0.3)"/>
+          <circle id="bub3" cx="50" cy="280" r="5" fill="rgba(255,255,255,0.22)"/>
+          <circle id="bub4" cx="84" cy="280" r="3" fill="rgba(245,214,122,0.3)"/>
+          <text id="st1" x="34" y="280" font-size="9" fill="rgba(245,214,122,0.9)" text-anchor="middle" opacity="0">✦</text>
+          <text id="st2" x="70" y="280" font-size="7" fill="rgba(255,255,255,0.8)" text-anchor="middle" opacity="0">✦</text>
+          <text id="st3" x="52" y="280" font-size="10" fill="rgba(245,214,122,0.8)" text-anchor="middle" opacity="0">✦</text>
+        </g>
+        <path d="M44,18 L44,70 L10,168 L10,200 Q10,208 55,208 Q100,208 100,200 L100,168 L66,70 L66,18" fill="url(#shine-g)" pointer-events="none"/>
+        <ellipse cx="55" cy="18" rx="13" ry="3.5" fill="rgba(252,210,225,0.3)" stroke="url(#gold-rim)" stroke-width="2"/>
+        <ellipse cx="55" cy="18" rx="10" ry="2.5" fill="rgba(248,200,215,0.5)"/>
+        <line x1="44" y1="20" x2="44" y2="68" stroke="url(#gold-neck)" stroke-width="1.2"/>
+        <line x1="66" y1="20" x2="66" y2="68" stroke="url(#gold-neck)" stroke-width="1.2"/>
+        <line x1="89" y1="174" x2="99" y2="174" stroke="#c9a227" stroke-width="1.2"/>
+        <line x1="83" y1="152" x2="93" y2="152" stroke="#c9a227" stroke-width="1.2"/>
+        <line x1="75" y1="130" x2="85" y2="130" stroke="#c9a227" stroke-width="1.2"/>
+        <line x1="67" y1="108" x2="77" y2="108" stroke="#c9a227" stroke-width="1.2"/>
+        <line x1="59" y1="86"  x2="69" y2="86"  stroke="#c9a227" stroke-width="1.2"/>
+        <ellipse id="base-glow" cx="55" cy="206" rx="36" ry="6" fill="rgba(200,149,90,0)" style="transition:fill 0.7s"/>
+      </svg>
+      <div class="flask-msg" id="flask-msg">Let's go! 💪</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const LIQ_BOTTOM=203,LIQ_TOP=28,LIQ_RANGE=LIQ_BOTTOM-LIQ_TOP;
+let config=null,activeTab='daily';
+
+function ls(k,fb){try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):fb;}catch(e){return fb;}}
+function ss(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+function todayKey(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function thisWeekKey(){const d=new Date();const day=d.getDay();const diff=d.getDate()-((day+2)%7);const fri=new Date(new Date().setDate(diff));return fri.getFullYear()+'-'+(fri.getMonth()+1)+'-'+fri.getDate();}
+
+function getDone(type){
+  const key=type==='daily'?'au_d_done':'au_w_done';
+  const tsKey=type==='daily'?'au_d_ts':'au_w_ts';
+  const curTs=type==='daily'?todayKey():thisWeekKey();
+  if(ls(tsKey,null)!==curTs){ss(tsKey,curTs);ss(key,[]);return[];}
+  return ls(key,[]);
+}
+function saveDone(type,done){ss(type==='daily'?'au_d_done':'au_w_done',done);}
+
+let dDone=getDone('daily'),wDone=getDone('weekly');
+function getDoneArr(){return activeTab==='daily'?dDone:wDone;}
+
+function updateFlask(count){
+  const frac=count/6,fillH=Math.round(frac*LIQ_RANGE),newY=LIQ_BOTTOM-fillH;
+  const liq=document.getElementById('liq');
+  liq.setAttribute('y',newY);liq.setAttribute('height',fillH+2);
+  const surf=document.getElementById('liq-surf');
+  if(count>0){surf.setAttribute('cy',newY);surf.setAttribute('opacity','1');surf.setAttribute('rx',Math.round(10+(fillH/LIQ_RANGE)*34));}
+  else{surf.setAttribute('opacity','0');}
+  function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+  const s=newY;
+  document.getElementById('bub1').setAttribute('cy',clamp(s+16,s+5,LIQ_BOTTOM-6));
+  document.getElementById('bub2').setAttribute('cy',clamp(s+24,s+5,LIQ_BOTTOM-4));
+  document.getElementById('bub3').setAttribute('cy',clamp(s+10,s+7,LIQ_BOTTOM-8));
+  document.getElementById('bub4').setAttribute('cy',clamp(s+30,s+5,LIQ_BOTTOM-4));
+  document.getElementById('st1').setAttribute('y',clamp(s+38,s+12,LIQ_BOTTOM-6));
+  document.getElementById('st2').setAttribute('y',clamp(s+55,s+16,LIQ_BOTTOM-6));
+  document.getElementById('st3').setAttribute('y',clamp(s+26,s+10,LIQ_BOTTOM-8));
+  document.getElementById('st1').setAttribute('opacity',count>0?0.65:0);
+  document.getElementById('st2').setAttribute('opacity',count>1?0.5:0);
+  document.getElementById('st3').setAttribute('opacity',count>2?0.55:0);
+  document.getElementById('base-glow').setAttribute('fill',count===6?'rgba(200,149,90,0.55)':'rgba(200,149,90,0)');
+  document.getElementById('done-count').textContent=count;
+  const msgs=['Let\'s go! 💪','One down! ⭐','Keep it up! 🌟','Halfway! 🌈','Nearly there! 🎊','One more! 💫',''];
+  document.getElementById('flask-msg').textContent=msgs[Math.min(count,6)];
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function render(){
+  if(!config)return;
+  const name=config.child_name||'LittleNugget';
+  const tab=config[activeTab];
+  const done=getDoneArr();
+  const all6=done.length>=6;
+  document.getElementById('name-display').textContent=name+'\u2019s Jobs';
+  document.getElementById('reward-display').textContent=tab.reward;
+  document.getElementById('reward-won').textContent=tab.reward;
+  document.getElementById('congrats-name').textContent='You did it, '+name+'!';
+  document.getElementById('tab-daily').className='tab'+(activeTab==='daily'?' active':'');
+  document.getElementById('tab-weekly').className='tab'+(activeTab==='weekly'?' active':'');
+  const grid=document.getElementById('chore-grid');
+  const banner=document.getElementById('complete-banner');
+  grid.style.display=all6?'none':'';
+  if(all6){banner.classList.add('show');}else{banner.classList.remove('show');}
+  if(!all6){
+    grid.innerHTML='';
+    tab.chores.forEach((c,i)=>{
+      const isDone=done.includes(i);
+      const card=document.createElement('div');
+      card.className='chore-card'+(isDone?' done':'');
+      card.innerHTML='<div class="chore-emoji">'+esc(c.emoji)+'</div><div class="chore-name">'+esc(c.name)+'</div><div class="tick">✓</div>';
+      card.onclick=()=>toggleChore(i,card);
+      grid.appendChild(card);
+    });
+  }
+  updateFlask(done.length);
+}
+
+function switchTab(tab){activeTab=tab;render();}
+
+function toggleChore(i,card){
+  const done=getDoneArr();
+  if(done.includes(i)){
+    const nd=done.filter(x=>x!==i);
+    if(activeTab==='daily')dDone=nd;else wDone=nd;
+    card.classList.remove('done');
+    saveDone(activeTab,nd);
+    updateFlask(nd.length);
+  } else {
+    done.push(i);
+    if(activeTab==='daily')dDone=done;else wDone=done;
+    card.classList.add('done');
+    spawnSparks(card);
+    saveDone(activeTab,done);
+    if(done.length>=6){updateFlask(6);setTimeout(render,500);return;}
+    updateFlask(done.length);
+  }
+}
+
+const SPARKS=['✨','⭐','🌟','💫','🎉'];
+function spawnSparks(el){
+  const r=el.getBoundingClientRect();
+  const cx=r.left+r.width/2,cy=r.top+r.height/2;
+  SPARKS.forEach((s,i)=>{
+    const sp=document.createElement('div');
+    sp.className='spark';
+    const tx=Math.round((Math.random()-0.5)*90),ty=Math.round((Math.random()-0.5)*90);
+    sp.style.cssText='left:'+Math.round(cx)+'px;top:'+Math.round(cy)+'px;--tx:'+tx+'px;--ty:'+ty+'px;animation-delay:'+(i*75)+'ms';
+    sp.textContent=s;
+    document.body.appendChild(sp);
+    setTimeout(()=>sp.remove(),950);
+  });
+}
+
+function manualReset(){
+  if(activeTab==='daily'){dDone=[];saveDone('daily',[]);}
+  else{wDone=[];saveDone('weekly',[]);}
+  render();
+}
+
+async function loadConfig(){
+  try{
+    const res=await fetch('/api/config?t='+Date.now());
+    config=await res.json();
+  } catch(e){
+    config={child_name:'LittleNugget',daily:{reward:'🍦 Ice Cream!',chores:[{emoji:'🛏️',name:'Make bed'},{emoji:'🦷',name:'Brush teeth'},{emoji:'🧺',name:'Tidy toys'},{emoji:'🍽️',name:'Clear dishes'},{emoji:'🐾',name:'Feed pet'},{emoji:'👗',name:'Get dressed'}]},weekly:{reward:'🎬 Movie Night!',chores:[{emoji:'🧹',name:'Vacuum room'},{emoji:'🪟',name:'Wipe surfaces'},{emoji:'🗑️',name:'Empty bins'},{emoji:'🧴',name:'Tidy bathroom'},{emoji:'👟',name:'Sort shoes'},{emoji:'📚',name:'Tidy bookshelf'}]}};
+  }
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.opacity='1';
+  render();
+  setTimeout(()=>updateFlask(getDoneArr().length),80);
+}
+
+loadConfig();
+
+</script>
+</body>
+</html>
