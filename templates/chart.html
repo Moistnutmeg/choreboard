@@ -6,234 +6,215 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="LittleNugget's Chores">
-<title>LittleNugget's Chore Chart ✨</title>
+<meta name="apple-mobile-web-app-title" content="Chore chart">
+<title>Chore chart</title>
 <style>
+@font-face { font-family: 'JetBrains Mono'; font-weight: 400; font-style: normal; font-display: swap; src: url('/static/fonts/JetBrainsMono-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'JetBrains Mono'; font-weight: 700; font-style: normal; font-display: swap; src: url('/static/fonts/JetBrainsMono-Bold.ttf') format('truetype'); }
+/* Written for an old iPad mini (iOS 12 Safari): no flex gap, no inset, no clamp(), no aspect-ratio. */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root {
-  --bg:          #fde8f0;
-  --panel:       #fad0e2;
-  --accent:      #c8955a;
-  --accent-soft: #d4aa70;
-  --text:        #5a1a35;
-  --text-mid:    #8a3a5a;
-  --text-muted:  #b06080;
-  --card-bg:     rgba(255,255,255,0.55);
-  --card-border: rgba(200,149,90,0.22);
-  --done-bg:     rgba(200,149,90,0.15);
-  --done-border: #c8955a;
+  --sky:    #dff1fb;
+  --sky2:   #bfe2f5;
+  --shell:  #8fcdf0;
+  --navy:   #2b4c7e;
+  --text:   #1f3a5a;
+  --muted:  #46688f;
+  --pink:   #ff8fb1;
+  --pink-d: #e0608a;
 }
 
 html, body {
   height: 100%;
-  background: var(--bg);
-  font-family: -apple-system, 'SF Pro Rounded', sans-serif;
+  background: var(--sky);
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
   overflow: hidden;
   color: var(--text);
+  -webkit-user-select: none; user-select: none;
 }
 
 .app {
-  display: flex;
+  display: -webkit-flex; display: flex;
   flex-direction: column;
   height: 100vh;
   height: -webkit-fill-available;
+  padding: 16px 22px 20px;
 }
 
-/* HEADER */
-.header {
-  flex-shrink: 0;
-  padding: 8px 14px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+/* HEADER: title, tabs, tools on one row */
+.top { display: flex; align-items: center; flex-shrink: 0; margin-bottom: 16px; }
+.title { flex: 1; font-size: 30px; font-weight: 700; letter-spacing: -1px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.app-title { display: flex; flex-direction: column; gap: 0px; }
-.title-sub  { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
-.title-main { font-size: 16px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
-
-.refresh-btn {
-  background: rgba(200,149,90,0.12);
-  border: 1.5px solid rgba(200,149,90,0.35);
-  border-radius: 10px;
-  padding: 5px 11px;
-  font-size: 16px;
-  cursor: pointer;
-  line-height: 1;
-}
-.refresh-btn:active { opacity: 0.6; transform: scale(0.92); }
-
-/* TABS */
-.tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: rgba(200,149,90,0.1);
-  border: 1.5px solid rgba(200,149,90,0.25);
-  border-radius: 13px;
-  padding: 3px;
-  gap: 3px;
-}
+.tabs { display: flex; margin-right: 14px; }
 .tab {
-  border-radius: 10px;
-  padding: 5px 0;
-  text-align: center;
-  font-size: 12px; font-weight: 700;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: background 0.18s, color 0.18s;
-  -webkit-user-select: none; user-select: none;
-}
-.tab.active { background: var(--accent); color: #fff; }
-.tab .tab-reset { font-size: 9px; font-weight: 500; opacity: 0.75; display: block; }
-
-/* CONTENT */
-.content {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr 145px;
-  padding: 7px 14px 8px;
-  gap: 10px;
-}
-
-.left { display: flex; flex-direction: column; gap: 7px; min-height: 0; }
-
-.reward-strip {
-  background: rgba(212,170,100,0.12);
-  border: 1.5px solid rgba(212,170,100,0.35);
-  border-radius: 13px;
-  padding: 5px 14px;
-  text-align: center;
-  flex-shrink: 0;
-}
-.rlabel { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1px; }
-.rvalue { font-size: 13px; font-weight: 700; color: var(--text); }
-
-/* CHORE GRID */
-.chore-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  flex: 1;
-  min-height: 0;
-}
-.chore-card {
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  border-radius: 13px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 4px; cursor: pointer;
-  transition: transform 0.12s, background 0.18s, border-color 0.18s;
-  position: relative;
-  padding: 6px 8px; text-align: center;
-  -webkit-user-select: none; user-select: none;
-}
-.chore-card:active { transform: scale(0.92); }
-.chore-card.done { background: var(--done-bg); border-color: var(--done-border); }
-.chore-emoji { font-size: 20px; line-height: 1; }
-.chore-name  { font-size: 10px; font-weight: 700; color: var(--text); line-height: 1.2; }
-.tick {
-  position: absolute; top: 5px; right: 5px;
-  width: 17px; height: 17px; border-radius: 50%;
-  background: var(--accent);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; opacity: 0; transition: opacity 0.18s;
-}
-.chore-card.done .tick { opacity: 1; }
-
-/* COMPLETE BANNER */
-.complete-banner {
-  flex: 1; min-height: 0;
+  background: #fff;
+  border: 3px solid var(--navy);
   border-radius: 16px;
-  background: linear-gradient(145deg, rgba(240,180,200,0.45), rgba(212,170,100,0.2));
-  border: 2px solid rgba(212,170,100,0.5);
-  display: none; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 8px; padding: 18px; text-align: center;
+  box-shadow: 0 4px 0 var(--navy);
+  padding: 7px 16px 8px;
+  margin-left: 12px;
+  text-align: center;
+  font-size: 19px; font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
 }
-.complete-banner.show { display: flex; }
-.big-emoji  { font-size: 38px; line-height: 1; }
-.congrats   { font-size: 17px; font-weight: 800; color: var(--text); }
-.reward-won { font-size: 15px; font-weight: 700; color: var(--accent-soft); }
-.reward-sub { font-size: 12px; color: var(--text-mid); }
-.reset-btn {
-  margin-top: 4px;
-  background: rgba(212,170,100,0.18);
-  border: 1.5px solid rgba(212,170,100,0.4);
-  border-radius: 11px; padding: 9px 22px;
-  color: var(--text); font-size: 13px; font-weight: 700;
+.tab small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); margin-top: 1px; }
+.tab.active { background: var(--shell); transform: translateY(4px); box-shadow: 0 0 0 var(--navy); }
+
+.tool {
+  background: #fff;
+  border: 3px solid var(--navy);
+  border-radius: 14px;
+  box-shadow: 0 4px 0 var(--navy);
+  width: 52px; height: 52px;
+  margin-left: 10px;
+  font-size: 22px; line-height: 1;
   cursor: pointer; font-family: inherit;
 }
-.reset-btn:active { opacity: 0.7; }
+.tool:active { transform: translateY(4px); box-shadow: 0 0 0 var(--navy); }
 
-/* FLASK PANEL */
-.right {
-  background: rgba(255,255,255,0.45);
-  border: 1.5px solid rgba(200,149,90,0.35);
-  border-radius: 16px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 2px; padding: 8px 6px;
+/* CONTENT */
+.content { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 280px; grid-column-gap: 24px; }
+.left { display: flex; flex-direction: column; min-height: 0; }
+
+/* CHORE STICKERS */
+.chore-grid {
+  flex: 1; min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;
+  grid-gap: 22px 18px;
+  padding-bottom: 6px;
 }
-.flask-title { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.09em; text-align: center; }
-.flask-count { font-size: 24px; font-weight: 800; color: var(--text); line-height: 1; }
-.flask-of    { font-size: 9px; color: var(--text-muted); }
-.flask-svg   { width: 80px; flex-shrink: 0; }
-.flask-msg   { font-size: 9px; color: var(--text-muted); text-align: center; min-height: 11px; padding: 0 4px; }
+.chore {
+  background: #fff;
+  border: 3px solid var(--navy);
+  border-radius: 22px;
+  box-shadow: 0 7px 0 var(--navy);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative;
+  padding: 10px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
+}
+.chore:active { transform: translateY(3px); box-shadow: 0 4px 0 var(--navy); }
+.chore.done { background: var(--sky2); transform: translateY(7px); box-shadow: 0 0 0 var(--navy); }
+.chore-emoji { font-size: 82px; line-height: 1; margin-bottom: 14px; }
+.chore-name  { font-size: 21px; font-weight: 700; line-height: 1.2; overflow-wrap: break-word; max-width: 100%; }
+.stamp { position: absolute; top: 10px; right: 12px; width: 38px; height: 34px; opacity: 0; -webkit-transform: scale(0.3); transform: scale(0.3); transition: opacity 0.15s, transform 0.2s; }
+.chore.done .stamp { opacity: 1; -webkit-transform: scale(1); transform: scale(1); }
 
-.loading { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text-muted); z-index: 999; }
+.reward {
+  flex-shrink: 0;
+  margin-top: 16px;
+  background: #fff;
+  border: 3px solid var(--navy);
+  border-radius: 18px;
+  padding: 10px 20px;
+  font-size: 22px; font-weight: 700;
+  text-align: center;
+}
+.reward span { color: var(--pink-d); }
 
+/* ALL DONE */
+.complete {
+  flex: 1; min-height: 0;
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  background: #fff;
+  border: 3px solid var(--navy);
+  border-radius: 26px;
+  box-shadow: 0 7px 0 var(--navy);
+  margin-bottom: 7px;
+  padding: 20px; text-align: center;
+}
+.complete.show { display: flex; }
+.big-emoji { font-size: 60px; line-height: 1; margin-bottom: 12px; }
+.congrats  { font-size: 38px; font-weight: 700; letter-spacing: -1.5px; }
+.won-label { font-size: 20px; color: var(--muted); margin-top: 14px; font-weight: 400; }
+.reward-won { font-size: 34px; font-weight: 700; color: var(--pink-d); margin-top: 4px; }
+.reset-btn {
+  margin-top: 22px;
+  background: var(--shell);
+  border: 3px solid var(--navy); border-radius: 18px; box-shadow: 0 5px 0 var(--navy);
+  padding: 12px 30px;
+  color: var(--text); font-size: 20px; font-weight: 700; font-family: inherit; cursor: pointer;
+}
+.reset-btn:active { transform: translateY(5px); box-shadow: 0 0 0 var(--navy); }
+
+/* PIXEL PAL: a little handheld that mirrors today's progress */
+.device {
+  background: var(--shell);
+  border: 4px solid var(--navy);
+  border-radius: 140px 140px 70px 70px;
+  box-shadow: 0 7px 0 var(--navy);
+  margin-bottom: 7px;
+  padding: 34px 22px 22px;
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  min-height: 0;
+}
+.speech {
+  background: #fff; border: 3px solid var(--navy); border-radius: 16px;
+  width: 100%; min-height: 76px; padding: 10px 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 700; line-height: 1.25; text-align: center;
+}
+.lcd {
+  position: relative;
+  width: 100%; height: 268px;
+  background: #eaf7fc;
+  border: 4px solid var(--navy); border-radius: 18px;
+  box-shadow: inset 0 0 0 4px #cfeaf7;
+  overflow: hidden;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 14px;
+  cursor: pointer;
+}
+.ground { position: absolute; left: 12px; right: 12px; bottom: 10px; height: 4px; background: repeating-linear-gradient(90deg, var(--navy) 0, var(--navy) 8px, transparent 8px, transparent 14px); opacity: 0.35; }
+.pet { width: 216px; height: 216px; position: relative; }
+.pet svg { width: 100%; height: 100%; display: block; }
+.zzz { position: absolute; top: 14px; right: 20px; font-size: 24px; font-weight: 700; color: var(--navy); display: none; }
+.pet.sleep ~ .zzz { display: block; -webkit-animation: zzz 2.4s steps(4) infinite; animation: zzz 2.4s steps(4) infinite; }
+
+/* two-frame LCD motion: steps() snaps between positions like a real pixel toy */
+.pet.sleep { -webkit-animation: breathe 2.4s steps(1, end) infinite; animation: breathe 2.4s steps(1, end) infinite; }
+.pet.idle  { -webkit-animation: bob 1.2s steps(1, end) infinite; animation: bob 1.2s steps(1, end) infinite; }
+.pet.happy { -webkit-animation: bob 0.8s steps(1, end) infinite; animation: bob 0.8s steps(1, end) infinite; }
+.pet.dance { -webkit-animation: hop 0.5s steps(1, end) infinite; animation: hop 0.5s steps(1, end) infinite; }
+.pet.cheer { -webkit-animation: hop 0.25s steps(1, end) 3; animation: hop 0.25s steps(1, end) 3; }
+@-webkit-keyframes breathe { 0%{-webkit-transform:translateY(0)} 50%{-webkit-transform:translateY(4px)} 100%{-webkit-transform:translateY(0)} }
+@keyframes breathe { 0%{transform:translateY(0)} 50%{transform:translateY(4px)} 100%{transform:translateY(0)} }
+@-webkit-keyframes bob { 0%{-webkit-transform:translateY(0)} 50%{-webkit-transform:translateY(-8px)} 100%{-webkit-transform:translateY(0)} }
+@keyframes bob { 0%{transform:translateY(0)} 50%{transform:translateY(-8px)} 100%{transform:translateY(0)} }
+@-webkit-keyframes hop { 0%{-webkit-transform:translateY(0)} 50%{-webkit-transform:translateY(-26px)} 100%{-webkit-transform:translateY(0)} }
+@keyframes hop { 0%{transform:translateY(0)} 50%{transform:translateY(-26px)} 100%{transform:translateY(0)} }
+@-webkit-keyframes zzz { 0%{opacity:0;-webkit-transform:translateY(8px)} 40%{opacity:1} 100%{opacity:0;-webkit-transform:translateY(-10px)} }
+@keyframes zzz { 0%{opacity:0;transform:translateY(8px)} 40%{opacity:1} 100%{opacity:0;transform:translateY(-10px)} }
+
+.heart { position: absolute; bottom: 90px; width: 28px; height: 25px; -webkit-animation: rise 1.4s steps(7, end) forwards; animation: rise 1.4s steps(7, end) forwards; pointer-events: none; }
+@-webkit-keyframes rise { 0%{opacity:1;-webkit-transform:translateY(0)} 100%{opacity:0;-webkit-transform:translateY(-84px)} }
+@keyframes rise { 0%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-84px)} }
+
+.dots { display: flex; justify-content: center; flex-wrap: wrap; }
+.dot { width: 24px; height: 24px; border-radius: 50%; border: 3px solid var(--navy); background: #fff; margin: 3px 4px; transition: background 0.2s; }
+.dot.on { background: var(--pink); }
+.count { font-size: 22px; font-weight: 700; }
+
+.loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--sky); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: var(--muted); z-index: 999; }
+
+@-webkit-keyframes pop { 0%{opacity:0;-webkit-transform:scale(0) rotate(0deg) translate(var(--tx),var(--ty))} 45%{opacity:1;-webkit-transform:scale(1.3) rotate(150deg) translate(var(--tx),var(--ty))} 100%{opacity:0;-webkit-transform:scale(0.4) rotate(310deg) translate(var(--tx),var(--ty))} }
 @keyframes pop { 0%{opacity:0;transform:scale(0) rotate(0deg) translate(var(--tx),var(--ty))} 45%{opacity:1;transform:scale(1.3) rotate(150deg) translate(var(--tx),var(--ty))} 100%{opacity:0;transform:scale(0.4) rotate(310deg) translate(var(--tx),var(--ty))} }
-.spark { position: fixed; pointer-events: none; font-size: 17px; z-index: 500; animation: pop 0.75s ease-out forwards; }
+.spark { position: fixed; pointer-events: none; font-size: 26px; z-index: 500; -webkit-animation: pop 0.75s ease-out forwards; animation: pop 0.75s ease-out forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pet, .pet ~ .zzz, .heart, .spark { -webkit-animation: none !important; animation: none !important; }
+}
 
 /* BLACKOUT */
-.blackout {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  z-index: 9999;
-  align-items: center;
-  justify-content: center;
-  -webkit-tap-highlight-color: transparent;
-}
+.blackout { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; align-items: center; justify-content: center; }
 .blackout.active { display: -webkit-flex; display: flex; }
-.wake-btn {
-  background: #444;
-  border: none;
-  border-radius: 14px;
-  padding: 12px 28px;
-  color: #ccc;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-}
+.wake-btn { background: #444; border: none; border-radius: 14px; padding: 14px 32px; color: #ccc; font-size: 18px; font-weight: 600; cursor: pointer; font-family: inherit; }
 .wake-btn:active { background: #555; }
-
-.sleep-btn {
-  background: rgba(200,149,90,0.12);
-  border: 1.5px solid rgba(200,149,90,0.35);
-  border-radius: 10px;
-  padding: 5px 11px;
-  font-size: 14px;
-  cursor: pointer;
-  line-height: 1;
-  color: var(--text-muted);
-  font-family: inherit;
-  font-weight: 600;
-}
-.sleep-btn:active { opacity: 0.6; }
 </style>
 </head>
 <body>
@@ -242,201 +223,228 @@ html, body {
   <button class="wake-btn" onclick="document.getElementById('blackout').classList.remove('active')">Wake</button>
 </div>
 
-<div class="loading" id="loading">✨ Loading...</div>
+<div class="loading" id="loading">Loading…</div>
 
 <div class="app" style="opacity:0;transition:opacity 0.3s" id="app">
-  <div class="header">
-    <div class="top-bar">
-      <div class="app-title">
-        <div class="title-sub">✨ chore chart</div>
-        <div class="title-main" id="name-display">LittleNugget's Jobs</div>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <button class="sleep-btn" onclick="document.getElementById('blackout').classList.add('active')">🌙</button>
-        <button class="refresh-btn" onclick="window.location.reload(true)">🔄</button>
-      </div>
-    </div>
+  <div class="top">
+    <div class="title" id="name-display">My jobs</div>
     <div class="tabs">
-      <div class="tab active" id="tab-daily" onclick="switchTab('daily')">
-        ☀️ Daily
-        <span class="tab-reset" id="daily-reset-label">resets each day</span>
-      </div>
-      <div class="tab" id="tab-weekly" onclick="switchTab('weekly')">
-        📅 Weekly
-        <span class="tab-reset">resets Friday</span>
-      </div>
+      <div class="tab active" id="tab-daily" onclick="switchTab('daily')">☀️ Daily<small id="daily-reset-label">starts again daily</small></div>
+      <div class="tab" id="tab-weekly" onclick="switchTab('weekly')">📅 Weekly<small>starts again Friday</small></div>
     </div>
+    <button class="tool" onclick="document.getElementById('blackout').classList.add('active')" aria-label="Screen off">🌙</button>
+    <button class="tool" onclick="window.location.reload(true)" aria-label="Refresh">🔄</button>
   </div>
 
   <div class="content">
     <div class="left">
-      <div class="reward-strip">
-        <div class="rlabel">Fill the flask to earn</div>
-        <div class="rvalue" id="reward-display"></div>
-      </div>
       <div class="chore-grid" id="chore-grid"></div>
-      <div class="complete-banner" id="complete-banner">
-        <div class="big-emoji">🎉🌟🎉</div>
-        <div class="congrats" id="congrats-name">You did it, LittleNugget!</div>
-        <div class="reward-sub">You earned:</div>
+      <div class="complete" id="complete">
+        <div class="big-emoji">🎉</div>
+        <div class="congrats" id="congrats-name">You did it!</div>
+        <div class="won-label">You earned</div>
         <div class="reward-won" id="reward-won"></div>
-        <button class="reset-btn" onclick="manualReset()">Start Again ✨</button>
+        <button class="reset-btn" onclick="manualReset()">Start again</button>
       </div>
+      <div class="reward" id="reward-strip">Finish all <span id="total-n">6</span> to win: <span id="reward-display"></span></div>
     </div>
 
-    <div class="right">
-      <div class="flask-title">Magic<br>Flask</div>
-      <div class="flask-count" id="done-count">0</div>
-      <div class="flask-of">out of 6</div>
-      <svg class="flask-svg" viewBox="0 0 110 220" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <clipPath id="flask-clip"><path d="M44,18 L44,70 L10,168 L10,200 Q10,208 55,208 Q100,208 100,200 L100,168 L66,70 L66,18 Z"/></clipPath>
-          <linearGradient id="liq-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f9c4d8"/><stop offset="50%" stop-color="#e8a070"/><stop offset="100%" stop-color="#c8793a"/></linearGradient>
-          <linearGradient id="shine-g" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(255,255,255,0.0)"/><stop offset="28%" stop-color="rgba(255,255,255,0.35)"/><stop offset="100%" stop-color="rgba(200,120,80,0.06)"/></linearGradient>
-          <linearGradient id="gold-rim" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#b8860b"/><stop offset="40%" stop-color="#f5d67a"/><stop offset="70%" stop-color="#d4a840"/><stop offset="100%" stop-color="#b8860b"/></linearGradient>
-          <linearGradient id="gold-neck" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c9a227"/><stop offset="50%" stop-color="#f5e090"/><stop offset="100%" stop-color="#c9a227"/></linearGradient>
-        </defs>
-        <path d="M44,18 L44,70 L10,168 L10,200 Q10,208 55,208 Q100,208 100,200 L100,168 L66,70 L66,18" fill="rgba(252,210,225,0.45)" stroke="url(#gold-rim)" stroke-width="2" stroke-linejoin="round"/>
-        <g clip-path="url(#flask-clip)">
-          <rect id="liq" x="10" y="208" width="90" height="0" fill="url(#liq-g)"/>
-          <ellipse id="liq-surf" cx="55" cy="208" rx="10" ry="4" fill="rgba(249,196,216,0.6)" opacity="0"/>
-          <circle id="bub1" cx="26" cy="280" r="4" fill="rgba(255,255,255,0.38)"/>
-          <circle id="bub2" cx="76" cy="280" r="3" fill="rgba(255,220,180,0.3)"/>
-          <circle id="bub3" cx="50" cy="280" r="5" fill="rgba(255,255,255,0.22)"/>
-          <circle id="bub4" cx="84" cy="280" r="3" fill="rgba(245,214,122,0.3)"/>
-          <text id="st1" x="34" y="280" font-size="9" fill="rgba(245,214,122,0.9)" text-anchor="middle" opacity="0">✦</text>
-          <text id="st2" x="70" y="280" font-size="7" fill="rgba(255,255,255,0.8)" text-anchor="middle" opacity="0">✦</text>
-          <text id="st3" x="52" y="280" font-size="10" fill="rgba(245,214,122,0.8)" text-anchor="middle" opacity="0">✦</text>
-        </g>
-        <path d="M44,18 L44,70 L10,168 L10,200 Q10,208 55,208 Q100,208 100,200 L100,168 L66,70 L66,18" fill="url(#shine-g)" pointer-events="none"/>
-        <ellipse cx="55" cy="18" rx="13" ry="3.5" fill="rgba(252,210,225,0.3)" stroke="url(#gold-rim)" stroke-width="2"/>
-        <ellipse cx="55" cy="18" rx="10" ry="2.5" fill="rgba(248,200,215,0.5)"/>
-        <line x1="44" y1="20" x2="44" y2="68" stroke="url(#gold-neck)" stroke-width="1.2"/>
-        <line x1="66" y1="20" x2="66" y2="68" stroke="url(#gold-neck)" stroke-width="1.2"/>
-        <line x1="89" y1="174" x2="99" y2="174" stroke="#c9a227" stroke-width="1.2"/>
-        <line x1="83" y1="152" x2="93" y2="152" stroke="#c9a227" stroke-width="1.2"/>
-        <line x1="75" y1="130" x2="85" y2="130" stroke="#c9a227" stroke-width="1.2"/>
-        <line x1="67" y1="108" x2="77" y2="108" stroke="#c9a227" stroke-width="1.2"/>
-        <line x1="59" y1="86"  x2="69" y2="86"  stroke="#c9a227" stroke-width="1.2"/>
-        <ellipse id="base-glow" cx="55" cy="206" rx="36" ry="6" fill="rgba(200,149,90,0)" style="transition:fill 0.7s"/>
-      </svg>
-      <div class="flask-msg" id="flask-msg">Let's go! 💪</div>
+    <div class="device">
+      <div class="speech" id="speech">Zzz… wake me with a job!</div>
+      <div class="lcd" onclick="petTap()">
+        <div class="ground"></div>
+        <div class="pet sleep" id="pet"></div>
+        <div class="zzz">z z</div>
+      </div>
+      <div class="dots" id="dots"></div>
+      <div class="count" id="count">0 of 6</div>
     </div>
   </div>
 </div>
 
 <script>
-const LIQ_BOTTOM=203,LIQ_TOP=28,LIQ_RANGE=LIQ_BOTTOM-LIQ_TOP;
-let config=null,activeTab='daily';
+var CONFIG_URL = window.CHORE_CONFIG_URL || '/api/config';
+var config = null, activeTab = 'daily';
 
-function ls(k,fb){try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):fb;}catch(e){return fb;}}
+function ls(k,fb){try{var v=localStorage.getItem(k);return v!==null?JSON.parse(v):fb;}catch(e){return fb;}}
 function ss(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 
-function todayKey(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
-function thisWeekKey(){const d=new Date();const day=d.getDay();const diff=d.getDate()-((day+2)%7);const fri=new Date(new Date().setDate(diff));return fri.getFullYear()+'-'+(fri.getMonth()+1)+'-'+fri.getDate();}
+function todayKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function thisWeekKey(){var d=new Date();var day=d.getDay();var diff=d.getDate()-((day+2)%7);var fri=new Date(new Date().setDate(diff));return fri.getFullYear()+'-'+(fri.getMonth()+1)+'-'+fri.getDate();}
 
+// Same storage keys and reset rules as before, so ticks already on the iPad survive the redesign.
 function getDone(type){
-  const key=type==='daily'?'au_d_done':'au_w_done';
-  const tsKey=type==='daily'?'au_d_ts':'au_w_ts';
-  const curTs=type==='daily'?todayKey():thisWeekKey();
+  var key=type==='daily'?'au_d_done':'au_w_done';
+  var tsKey=type==='daily'?'au_d_ts':'au_w_ts';
+  var curTs=type==='daily'?todayKey():thisWeekKey();
   if(ls(tsKey,null)!==curTs){ss(tsKey,curTs);ss(key,[]);return[];}
   return ls(key,[]);
 }
 function saveDone(type,done){ss(type==='daily'?'au_d_done':'au_w_done',done);}
 
-let dDone=getDone('daily'),wDone=getDone('weekly');
+var dDone=getDone('daily'),wDone=getDone('weekly');
 function getDoneArr(){return activeTab==='daily'?dDone:wDone;}
+function total(){return config?config[activeTab].chores.length:6;}
 
-function updateFlask(count){
-  const frac=count/6,fillH=Math.round(frac*LIQ_RANGE),newY=LIQ_BOTTOM-fillH;
-  const liq=document.getElementById('liq');
-  liq.setAttribute('y',newY);liq.setAttribute('height',fillH+2);
-  const surf=document.getElementById('liq-surf');
-  if(count>0){surf.setAttribute('cy',newY);surf.setAttribute('opacity','1');surf.setAttribute('rx',Math.round(10+(fillH/LIQ_RANGE)*34));}
-  else{surf.setAttribute('opacity','0');}
-  function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
-  const s=newY;
-  document.getElementById('bub1').setAttribute('cy',clamp(s+16,s+5,LIQ_BOTTOM-6));
-  document.getElementById('bub2').setAttribute('cy',clamp(s+24,s+5,LIQ_BOTTOM-4));
-  document.getElementById('bub3').setAttribute('cy',clamp(s+10,s+7,LIQ_BOTTOM-8));
-  document.getElementById('bub4').setAttribute('cy',clamp(s+30,s+5,LIQ_BOTTOM-4));
-  document.getElementById('st1').setAttribute('y',clamp(s+38,s+12,LIQ_BOTTOM-6));
-  document.getElementById('st2').setAttribute('y',clamp(s+55,s+16,LIQ_BOTTOM-6));
-  document.getElementById('st3').setAttribute('y',clamp(s+26,s+10,LIQ_BOTTOM-8));
-  document.getElementById('st1').setAttribute('opacity',count>0?0.65:0);
-  document.getElementById('st2').setAttribute('opacity',count>1?0.5:0);
-  document.getElementById('st3').setAttribute('opacity',count>2?0.55:0);
-  document.getElementById('base-glow').setAttribute('fill',count===6?'rgba(200,149,90,0.55)':'rgba(200,149,90,0)');
-  document.getElementById('done-count').textContent=count;
-  const msgs=['Let\'s go! 💪','One down! ⭐','Keep it up! 🌟','Halfway! 🌈','Nearly there! 🎊','One more! 💫',''];
-  document.getElementById('flask-msg').textContent=msgs[Math.min(count,6)];
+/* ── Pixel pal ───────────────────────────────────────────
+   16x16 art, one string per row. o outline, b body, s shade, w shine, p/d pink.
+   An original little creature: round, light blue, cat-ish ears, a pink bow. */
+var BODY=[
+"..oo........oo..",
+".obbo......obbo.",
+".obbbooooooobbo.",
+"obbbbbbbbbbbbbbo",
+"obwwbbbbbbbbbbbo",
+"obwbbbbbbbbbbbbo",
+"obbbbbbbbbbbbbbo",
+"obbbbbbbbbbbbbbo",
+"obbbbbbbbbbbbbbo",
+"obbbbbbbbbbbbbbo",
+".obbbbbbbbbbbbo.",
+".obssssssssssbo.",
+"..oobbbbbbbboo..",
+"..obbo....obbo..",
+"..oooo....oooo..",
+"................"];
+var COLORS={o:'#2b4c7e',b:'#9fd6f5',s:'#7fbfe6',w:'#ffffff',p:'#ff8fb1',d:'#e0608a'};
+// face pixels: [row, col, colour]
+var BOW=[[2,10,'p'],[2,11,'p'],[2,13,'p'],[2,14,'p'],[3,10,'p'],[3,11,'p'],[3,12,'d'],[3,13,'p'],[3,14,'p'],[4,10,'p'],[4,11,'p'],[4,13,'p'],[4,14,'p']];
+var CHEEKS=[[8,2,'p'],[8,3,'p'],[8,12,'p'],[8,13,'p']];
+function eyesOpen(){return [[5,4,'o'],[5,5,'o'],[6,4,'o'],[6,5,'o'],[5,10,'o'],[5,11,'o'],[6,10,'o'],[6,11,'o'],[5,4,'w']];}
+var EYES_SHUT=[[6,4,'o'],[6,5,'o'],[6,10,'o'],[6,11,'o']];
+var EYES_HAPPY=[[5,5,'o'],[6,4,'o'],[6,6,'o'],[5,11,'o'],[6,10,'o'],[6,12,'o']];
+var MOUTH_SMILE=[[8,6,'o'],[9,7,'o'],[9,8,'o'],[8,9,'o']];
+var MOUTH_OPEN=[[8,6,'o'],[8,7,'o'],[8,8,'o'],[8,9,'o'],[9,7,'o'],[9,8,'o']];
+var MOUTH_SLEEP=[[9,7,'o'],[9,8,'o']];
+var FACES={sleep:[EYES_SHUT,MOUTH_SLEEP],idle:[null,MOUTH_SMILE],happy:[EYES_HAPPY,MOUTH_OPEN],dance:[EYES_HAPPY,MOUTH_OPEN]};
+var blink=false;
+
+function petSvg(state){
+  var px={};
+  BODY.forEach(function(row,r){for(var c=0;c<row.length;c++){if(row[c]!=='.')px[r+','+c]=COLORS[row[c]];}});
+  var f=FACES[state];
+  var eyes=f[0]||(blink?EYES_SHUT:eyesOpen());
+  [BOW,CHEEKS,eyes,f[1]].forEach(function(layer){layer.forEach(function(p){px[p[0]+','+p[1]]=COLORS[p[2]];});});
+  var out='<svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">';
+  for(var k in px){var rc=k.split(',');out+='<rect x="'+rc[1]+'" y="'+rc[0]+'" width="1" height="1" fill="'+px[k]+'"/>';}
+  return out+'</svg>';
+}
+
+var HEART='<svg viewBox="0 0 7 6" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><path fill="#ff8fb1" d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/><path fill="#2b4c7e" d="M1 0h2v1H1zM4 0h2v1H4zM0 1h1v2H0zM6 1h1v2H6zM1 3h1v1H1zM5 3h1v1H5zM2 4h1v1H2zM4 4h1v1H4zM3 5h1v1H3zM3 1h1v1H3z" opacity="0"/></svg>';
+function floatHeart(){
+  var lcd=document.querySelector('.lcd'),h=document.createElement('div');
+  h.className='heart';h.innerHTML=HEART;
+  h.style.left=(50+Math.round((Math.random()-0.5)*90))+'px';
+  lcd.appendChild(h);
+  setTimeout(function(){if(h.parentNode)h.parentNode.removeChild(h);},1500);
+}
+
+var petState='',danceTimer=null;
+function setPet(state){
+  var el=document.getElementById('pet');
+  if(petState!==state){
+    petState=state;
+    el.className='pet '+state;
+    clearInterval(danceTimer);danceTimer=null;
+    if(state==='dance'){floatHeart();danceTimer=setInterval(floatHeart,700);}
+  }
+  el.innerHTML=petSvg(state);
+}
+function stateFor(n,N){return n===0?'sleep':n>=N?'dance':n*2>=N?'happy':'idle';}
+function speechFor(n,N){
+  if(n===0)return 'Zzz… wake me with a job!';
+  if(n>=N)return 'We did it!!';
+  if(n===N-1)return 'Just one more!';
+  return ['Yay! I woke up!','Keep going!','Halfway there!','Nearly there!'][Math.min(n-1,3)];
+}
+function petTap(){
+  var el=document.getElementById('pet');
+  if(petState==='sleep'){return;}
+  var keep=el.className;
+  el.className='pet cheer';floatHeart();
+  setTimeout(function(){el.className=keep;},800);
+}
+setInterval(function(){if(petState==='idle'||petState==='happy'){blink=true;setPet(petState);setTimeout(function(){blink=false;setPet(petState);},160);}},3600);
+
+function updatePet(n){
+  var N=total();
+  setPet(stateFor(n,N));
+  document.getElementById('speech').textContent=speechFor(n,N);
+  document.getElementById('count').textContent=n+' of '+N;
+  var dots='';for(var i=0;i<N;i++){dots+='<div class="dot'+(i<n?' on':'')+'"></div>';}
+  document.getElementById('dots').innerHTML=dots;
 }
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function render(){
   if(!config)return;
-  const name=config.child_name||'LittleNugget';
-  const tab=config[activeTab];
-  const done=getDoneArr();
-  const all6=done.length>=6;
-  document.getElementById('name-display').textContent=name+'\u2019s Jobs';
+  var name=config.child_name||'';
+  var tab=config[activeTab];
+  var done=getDoneArr();
+  var N=tab.chores.length;
+  var all=done.length>=N;
+  document.getElementById('name-display').textContent=name?name+'’s jobs':'My jobs';
   document.getElementById('reward-display').textContent=tab.reward;
+  document.getElementById('total-n').textContent=N;
   document.getElementById('reward-won').textContent=tab.reward;
-  document.getElementById('congrats-name').textContent='You did it, '+name+'!';
+  document.getElementById('congrats-name').textContent=name?'You did it, '+name+'!':'You did it!';
   document.getElementById('tab-daily').className='tab'+(activeTab==='daily'?' active':'');
   document.getElementById('tab-weekly').className='tab'+(activeTab==='weekly'?' active':'');
-  const grid=document.getElementById('chore-grid');
-  const banner=document.getElementById('complete-banner');
-  grid.style.display=all6?'none':'';
-  if(all6){banner.classList.add('show');}else{banner.classList.remove('show');}
-  if(!all6){
+  var grid=document.getElementById('chore-grid');
+  var banner=document.getElementById('complete');
+  grid.style.display=all?'none':'';
+  document.getElementById('reward-strip').style.display=all?'none':'';
+  if(all){banner.classList.add('show');}else{banner.classList.remove('show');}
+  if(!all){
     grid.innerHTML='';
-    tab.chores.forEach((c,i)=>{
-      const isDone=done.includes(i);
-      const card=document.createElement('div');
-      card.className='chore-card'+(isDone?' done':'');
-      card.innerHTML='<div class="chore-emoji">'+esc(c.emoji)+'</div><div class="chore-name">'+esc(c.name)+'</div><div class="tick">✓</div>';
-      card.onclick=()=>toggleChore(i,card);
+    tab.chores.forEach(function(c,i){
+      var isDone=done.indexOf(i)!==-1;
+      var card=document.createElement('div');
+      card.className='chore'+(isDone?' done':'');
+      card.innerHTML='<div class="chore-emoji">'+esc(c.emoji)+'</div><div class="chore-name">'+esc(c.name)+'</div><svg class="stamp" viewBox="0 0 7 6" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><path fill="#ff8fb1" stroke="#2b4c7e" stroke-width="0.5" d="M1 0.5h1.5L3.5 1.5L4.5 0.5H6L6.5 1.5V3L3.5 5.5L0.5 3V1.5z"/></svg>';
+      card.onclick=function(){toggleChore(i,card);};
       grid.appendChild(card);
     });
   }
-  updateFlask(done.length);
+  updatePet(done.length);
 }
 
 function switchTab(tab){activeTab=tab;render();}
 
 function toggleChore(i,card){
-  const done=getDoneArr();
-  if(done.includes(i)){
-    const nd=done.filter(x=>x!==i);
+  var done=getDoneArr(),N=total();
+  var at=done.indexOf(i);
+  if(at!==-1){
+    var nd=done.filter(function(x){return x!==i;});
     if(activeTab==='daily')dDone=nd;else wDone=nd;
     card.classList.remove('done');
     saveDone(activeTab,nd);
-    updateFlask(nd.length);
+    updatePet(nd.length);
   } else {
     done.push(i);
     if(activeTab==='daily')dDone=done;else wDone=done;
     card.classList.add('done');
     spawnSparks(card);
     saveDone(activeTab,done);
-    if(done.length>=6){updateFlask(6);setTimeout(render,500);return;}
-    updateFlask(done.length);
+    updatePet(done.length);
+    if(done.length<N){var el=document.getElementById('pet');var keep=el.className;el.className='pet cheer';setTimeout(function(){el.className=keep;},800);}
+    if(done.length>=N){setTimeout(render,700);}
   }
 }
 
-const SPARKS=['✨','⭐','🌟','💫','🎉'];
+var SPARKS=['✨','⭐','🌟','💫','🎉'];
 function spawnSparks(el){
-  const r=el.getBoundingClientRect();
-  const cx=r.left+r.width/2,cy=r.top+r.height/2;
-  SPARKS.forEach((s,i)=>{
-    const sp=document.createElement('div');
+  var r=el.getBoundingClientRect();
+  var cx=r.left+r.width/2,cy=r.top+r.height/2;
+  SPARKS.forEach(function(s,i){
+    var sp=document.createElement('div');
     sp.className='spark';
-    const tx=Math.round((Math.random()-0.5)*90),ty=Math.round((Math.random()-0.5)*90);
-    sp.style.cssText='left:'+Math.round(cx)+'px;top:'+Math.round(cy)+'px;--tx:'+tx+'px;--ty:'+ty+'px;animation-delay:'+(i*75)+'ms';
+    var tx=Math.round((Math.random()-0.5)*120),ty=Math.round((Math.random()-0.5)*120);
+    sp.style.cssText='left:'+Math.round(cx)+'px;top:'+Math.round(cy)+'px;--tx:'+tx+'px;--ty:'+ty+'px;animation-delay:'+(i*75)+'ms;-webkit-animation-delay:'+(i*75)+'ms';
     sp.textContent=s;
     document.body.appendChild(sp);
-    setTimeout(()=>sp.remove(),950);
+    setTimeout(function(){sp.remove();},950);
   });
 }
 
@@ -446,21 +454,16 @@ function manualReset(){
   render();
 }
 
-async function loadConfig(){
-  try{
-    const res=await fetch('/api/config?t='+Date.now());
-    config=await res.json();
-  } catch(e){
-    config={child_name:'LittleNugget',daily:{reward:'🍦 Ice Cream!',chores:[{emoji:'🛏️',name:'Make bed'},{emoji:'🦷',name:'Brush teeth'},{emoji:'🧺',name:'Tidy toys'},{emoji:'🍽️',name:'Clear dishes'},{emoji:'🐾',name:'Feed pet'},{emoji:'👗',name:'Get dressed'}]},weekly:{reward:'🎬 Movie Night!',chores:[{emoji:'🧹',name:'Vacuum room'},{emoji:'🪟',name:'Wipe surfaces'},{emoji:'🗑️',name:'Empty bins'},{emoji:'🧴',name:'Tidy bathroom'},{emoji:'👟',name:'Sort shoes'},{emoji:'📚',name:'Tidy bookshelf'}]}};
-  }
-  document.getElementById('loading').style.display='none';
-  document.getElementById('app').style.opacity='1';
-  render();
-  setTimeout(()=>updateFlask(getDoneArr().length),80);
+function loadConfig(){
+  fetch(CONFIG_URL+'?t='+Date.now()).then(function(res){return res.json();}).then(function(c){config=c;},function(){
+    config={child_name:'',daily:{reward:'Ice cream',chores:[{emoji:'🛏️',name:'Make bed'},{emoji:'🦷',name:'Brush teeth'},{emoji:'🧺',name:'Tidy toys'},{emoji:'🍽️',name:'Clear dishes'},{emoji:'🐾',name:'Feed pet'},{emoji:'👗',name:'Get dressed'}]},weekly:{reward:'Movie night',chores:[{emoji:'🧹',name:'Vacuum room'},{emoji:'🪟',name:'Wipe surfaces'},{emoji:'🗑️',name:'Empty bins'},{emoji:'🧴',name:'Tidy bathroom'},{emoji:'👟',name:'Sort shoes'},{emoji:'📚',name:'Tidy bookshelf'}]}};
+  }).then(function(){
+    document.getElementById('loading').style.display='none';
+    document.getElementById('app').style.opacity='1';
+    render();
+  });
 }
-
 loadConfig();
-
 </script>
 </body>
 </html>

@@ -5,6 +5,23 @@ A self-hosted chore reward chart for one kid, built to collect as little as poss
 Flask + Docker, served from a home server, displayed on a wall-mounted tablet. No account,
 no cloud, no third party.
 
+## What it looks like
+
+Shown on an iPad mini in landscape. Each chore is a sticker that presses in and gets a heart stamp when
+it is done. A small pixel pet in a handheld frame mirrors the day's progress: asleep at zero chores,
+awake after the first, bouncing from halfway, dancing when everything is done. It cannot get sick or
+die, so it never punishes a missed day. The pet is an original drawing, not a licensed character.
+
+| Nothing done yet | Halfway | All done |
+| --- | --- | --- |
+| ![Chart with the pet asleep](docs/screenshots/chart-asleep.png) | ![Chart halfway](docs/screenshots/chart-halfway.png) | ![All done screen](docs/screenshots/chart-done.png) |
+
+The parent-facing admin page sets the name, rewards and chores:
+
+![Admin page](docs/screenshots/admin.png)
+
+The screenshots use the default config and the public handle LittleNugget.
+
 ## The design constraint
 
 The server stores the chore **list** only. It never stores which chores are done, or when.
@@ -50,9 +67,14 @@ explicit about what would have to change first.
 | `app.py` | Flask app, config read/write, JSON API |
 | `templates/chart.html` | The kid-facing chart, completion state in localStorage |
 | `templates/admin.html` | Parent-facing config editor |
-| `Dockerfile` | python:3.11-slim, Flask, port 8090, `/data` volume |
+| `static/` | Favicon and the bundled JetBrains Mono font files |
+| `docs/screenshots/` | Screenshots used in this README |
+| `Dockerfile` | python:3.11-slim, Flask, port 8090, `/data` volume, copies `templates/` and `static/` |
 | `rebuild.sh` | Build and restart the container |
 
 ## Licence
 
-No licence specified. Ask before reuse.
+No licence specified for the code. Ask before reuse.
+
+The bundled JetBrains Mono fonts in `static/fonts/` are under the SIL Open Font License 1.1 (see
+`static/fonts/OFL.txt`).

@@ -4,108 +4,84 @@
   <link rel="icon" type="image/png" href="/static/choreboard_icon.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chore Chart Admin</title>
+<title>Chore chart admin</title>
 <style>
+@font-face { font-family: 'JetBrains Mono'; font-weight: 400; font-style: normal; font-display: swap; src: url('/static/fonts/JetBrainsMono-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'JetBrains Mono'; font-weight: 700; font-style: normal; font-display: swap; src: url('/static/fonts/JetBrainsMono-Bold.ttf') format('truetype'); }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #fdf0f5;
-  --card: #ffffff;
-  --accent: #c8955a;
-  --accent2: #e0609a;
-  --gold: #c9a227;
-  --text: #3a1020;
-  --muted: #9a6070;
-  --border: rgba(200,149,90,0.25);
-  --success: #2d9e5f;
+  --sky:    #dff1fb;
+  --sky2:   #bfe2f5;
+  --shell:  #8fcdf0;
+  --navy:   #2b4c7e;
+  --text:   #1f3a5a;
+  --muted:  #46688f;
+  --pink:   #ff8fb1;
+  --pink-d: #e0608a;
 }
-body { background: var(--bg); font-family: -apple-system, 'Segoe UI', sans-serif; color: var(--text); min-height: 100vh; }
+body { background: var(--sky); font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; color: var(--text); min-height: 100vh; }
 
 header {
-  background: white;
-  border-bottom: 2px solid var(--border);
-  padding: 16px 24px;
-  display: flex; align-items: center; justify-content: space-between;
+  background: #fff;
+  border-bottom: 3px solid var(--navy);
+  padding: 14px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
   position: sticky; top: 0; z-index: 10;
 }
-.logo { font-size: 20px; font-weight: 800; color: var(--text); }
-.logo span { color: var(--accent); }
+.logo { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
 .save-all-btn {
-  background: var(--accent); border: none; border-radius: 10px;
-  padding: 10px 24px; color: white; font-size: 14px; font-weight: 700;
-  cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+  background: var(--shell); border: 3px solid var(--navy); border-radius: 14px; box-shadow: 0 4px 0 var(--navy);
+  padding: 9px 22px; color: var(--text); font-size: 15px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
 }
-.save-all-btn:hover { opacity: 0.88; }
-.save-all-btn:active { opacity: 0.7; }
+.save-all-btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--navy); }
+.save-all-btn:focus-visible, .field-input:focus-visible, .em-inp:focus-visible, .cn-inp:focus-visible { outline: 3px solid var(--pink-d); outline-offset: 2px; }
 
 .toast {
   position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-  background: var(--success); color: white; padding: 10px 24px;
-  border-radius: 20px; font-size: 14px; font-weight: 600;
+  background: var(--navy); color: #fff; padding: 10px 24px;
+  border-radius: 14px; font-size: 15px; font-weight: 700;
   opacity: 0; transition: opacity 0.3s; z-index: 100; pointer-events: none;
 }
 .toast.show { opacity: 1; }
 
-main { max-width: 780px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 20px; }
+main { max-width: 780px; margin: 0 auto; padding: 26px 16px 56px; display: flex; flex-direction: column; gap: 26px; }
 
-.card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
-.card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-.card-header h2 { font-size: 15px; font-weight: 700; color: var(--text); }
-.card-header .badge { background: var(--accent); color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
-.card-header .badge.weekly { background: var(--accent2); }
-.card-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+.card { background: #fff; border-radius: 20px; border: 3px solid var(--navy); box-shadow: 0 6px 0 var(--navy); overflow: hidden; }
+.card-header { padding: 14px 20px; border-bottom: 3px solid var(--navy); background: var(--sky2); display: flex; align-items: center; gap: 12px; }
+.card-header h2 { font-size: 17px; font-weight: 700; }
+.card-header .badge { background: #fff; border: 2px solid var(--navy); color: var(--text); font-size: 12px; font-weight: 700; padding: 3px 12px; border-radius: 20px; }
+.card-header .badge.weekly { background: var(--pink); }
+.card-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
 
-.field-row { display: flex; flex-direction: column; gap: 5px; }
-.field-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-.field-input {
-  width: 100%;
-  border: 1.5px solid var(--border);
-  border-radius: 10px; padding: 10px 14px;
-  color: var(--text); font-size: 15px;
-  font-family: inherit; outline: none;
-  background: #fdf8f0;
-  transition: border-color 0.15s;
+.field-row { display: flex; flex-direction: column; gap: 6px; }
+.field-label { font-size: 14px; font-weight: 700; color: var(--muted); }
+.field-input, .em-inp, .cn-inp {
+  border: 2px solid var(--navy); border-radius: 12px;
+  color: var(--text); font-family: inherit; background: #fff;
 }
-.field-input:focus { border-color: var(--gold); }
+.field-input { width: 100%; padding: 10px 14px; font-size: 16px; }
+.field-input:focus, .em-inp:focus, .cn-inp:focus { border-color: var(--pink-d); outline: none; box-shadow: 0 0 0 3px var(--sky2); }
 
-.chore-list { display: flex; flex-direction: column; gap: 8px; }
+.chore-list { display: flex; flex-direction: column; gap: 10px; }
 .chore-row { display: flex; align-items: center; gap: 8px; }
-.chore-num { font-size: 12px; font-weight: 700; color: var(--muted); width: 18px; flex-shrink: 0; text-align: right; }
-.em-inp {
-  width: 50px; flex-shrink: 0;
-  border: 1.5px solid var(--border); border-radius: 9px;
-  padding: 9px 4px; font-size: 20px; text-align: center;
-  font-family: inherit; outline: none; background: #fdf8f0;
-  transition: border-color 0.15s;
-}
-.em-inp:focus { border-color: var(--gold); }
-.cn-inp {
-  flex: 1;
-  border: 1.5px solid var(--border); border-radius: 9px;
-  padding: 10px 12px; font-size: 14px; font-weight: 600;
-  font-family: inherit; outline: none; background: #fdf8f0;
-  transition: border-color 0.15s; color: var(--text);
-}
-.cn-inp:focus { border-color: var(--gold); }
+.chore-num { font-size: 13px; font-weight: 700; color: var(--muted); width: 18px; flex-shrink: 0; text-align: right; }
+.em-inp { width: 56px; flex-shrink: 0; padding: 8px 4px; font-size: 22px; text-align: center; }
+.cn-inp { flex: 1; min-width: 0; padding: 10px 12px; font-size: 15px; font-weight: 700; }
 
-.preview-strip {
-  background: linear-gradient(135deg, #fde8f0, #fef5e4);
-  border: 1px solid var(--border); border-radius: 12px;
-  padding: 12px 16px;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-wrap: wrap; gap: 8px;
-}
-.preview-strip .plabel { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
-.preview-chores { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-.preview-chip { background: white; border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--text); }
+.preview-strip { background: var(--sky); border: 2px solid var(--navy); border-radius: 14px; padding: 12px 16px; }
+.preview-strip .plabel { font-size: 13px; color: var(--muted); font-weight: 700; }
+.preview-chores { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.preview-chip { background: #fff; border: 2px solid var(--navy); border-radius: 20px; padding: 4px 12px; font-size: 13px; font-weight: 700; }
 </style>
 </head>
 <body>
 
-<div class="toast" id="toast">✓ Saved!</div>
+<div class="toast" id="toast">Saved</div>
 
 <header>
-  <div class="logo">✨ Chore Chart <span>Admin</span></div>
-  <button class="save-all-btn" onclick="saveAll()">Save Changes</button>
+  <div class="logo">Chore chart admin</div>
+  <button class="save-all-btn" onclick="saveAll()">Save changes</button>
 </header>
 
 <main>
@@ -113,12 +89,12 @@ main { max-width: 780px; margin: 0 auto; padding: 24px 16px 48px; display: flex;
   <!-- NAME -->
   <div class="card">
     <div class="card-header">
-      <h2>👧 Child's Name</h2>
+      <h2>Name</h2>
     </div>
     <div class="card-body">
       <div class="field-row">
-        <div class="field-label">Name shown on the chart</div>
-        <input class="field-input" id="child-name" type="text" maxlength="20" placeholder="e.g. LittleNugget">
+        <label class="field-label" for="child-name">Name shown on the chart</label>
+        <input class="field-input" id="child-name" type="text" maxlength="20" placeholder="e.g. Sam">
       </div>
     </div>
   </div>
@@ -126,23 +102,21 @@ main { max-width: 780px; margin: 0 auto; padding: 24px 16px 48px; display: flex;
   <!-- DAILY -->
   <div class="card">
     <div class="card-header">
-      <h2>☀️ Daily Chores</h2>
-      <span class="badge">resets every day</span>
+      <h2>☀️ Daily chores</h2>
+      <span class="badge">starts again every day</span>
     </div>
     <div class="card-body">
       <div class="field-row">
-        <div class="field-label">🎁 Daily reward</div>
-        <input class="field-input" id="daily-reward" type="text" maxlength="40" placeholder="e.g. 🍦 Ice Cream!">
+        <label class="field-label" for="daily-reward">Daily reward</label>
+        <input class="field-input" id="daily-reward" type="text" maxlength="40" placeholder="e.g. 🍦 Ice cream">
       </div>
       <div class="field-row">
-        <div class="field-label">✅ Chores</div>
+        <div class="field-label">Chores</div>
         <div class="chore-list" id="daily-chores"></div>
       </div>
       <div class="preview-strip" id="daily-preview">
-        <div>
-          <div class="plabel">Preview</div>
-          <div class="preview-chores" id="daily-preview-chips"></div>
-        </div>
+        <div class="plabel">Preview</div>
+        <div class="preview-chores" id="daily-preview-chips"></div>
       </div>
     </div>
   </div>
@@ -150,23 +124,21 @@ main { max-width: 780px; margin: 0 auto; padding: 24px 16px 48px; display: flex;
   <!-- WEEKLY -->
   <div class="card">
     <div class="card-header">
-      <h2>📅 Weekly Chores</h2>
-      <span class="badge weekly">resets every Monday</span>
+      <h2>📅 Weekly chores</h2>
+      <span class="badge weekly">starts again every Friday</span>
     </div>
     <div class="card-body">
       <div class="field-row">
-        <div class="field-label">🎁 Weekly reward</div>
-        <input class="field-input" id="weekly-reward" type="text" maxlength="40" placeholder="e.g. 🎬 Movie Night!">
+        <label class="field-label" for="weekly-reward">Weekly reward</label>
+        <input class="field-input" id="weekly-reward" type="text" maxlength="40" placeholder="e.g. 🎬 Movie night">
       </div>
       <div class="field-row">
-        <div class="field-label">✅ Chores</div>
+        <div class="field-label">Chores</div>
         <div class="chore-list" id="weekly-chores"></div>
       </div>
       <div class="preview-strip">
-        <div>
-          <div class="plabel">Preview</div>
-          <div class="preview-chores" id="weekly-preview-chips"></div>
-        </div>
+        <div class="plabel">Preview</div>
+        <div class="preview-chores" id="weekly-preview-chips"></div>
       </div>
     </div>
   </div>
