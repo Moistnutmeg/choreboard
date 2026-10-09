@@ -111,8 +111,9 @@ html, body {
   background: #fff;
   border: 3px solid var(--navy);
   border-radius: 18px;
-  padding: 10px 20px;
-  font-size: 22px; font-weight: 700;
+  padding: 8px 16px;
+  font-size: 18px; font-weight: 700; line-height: 1.25;
+  overflow-wrap: break-word;
   text-align: center;
 }
 .reward span { color: var(--pink-d); }
@@ -263,6 +264,9 @@ html, body {
 </div>
 
 <script>
+// iOS Safari: 100vh is taller than the visible screen, so the bottom gets cut off. Size to what is really visible.
+function fitApp(){document.getElementById('app').style.height=window.innerHeight+'px';}
+fitApp();window.addEventListener('resize',fitApp);window.addEventListener('orientationchange',fitApp);
 var CONFIG_URL = window.CHORE_CONFIG_URL || '/api/config';
 var config = null, activeTab = 'daily';
 
