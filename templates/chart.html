@@ -208,20 +208,28 @@ html, body {
 .spark { position: fixed; pointer-events: none; font-size: 26px; z-index: 500; -webkit-animation: pop 0.75s ease-out forwards; animation: pop 0.75s ease-out forwards; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pet, .pet ~ .zzz, .heart, .spark { -webkit-animation: none !important; animation: none !important; }
+  .pet, .pet ~ .zzz, .bed .zzz, .heart, .spark { -webkit-animation: none !important; animation: none !important; }
 }
 
 /* BLACKOUT */
-.blackout { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; align-items: center; justify-content: center; }
+.blackout { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; -webkit-flex-direction: column; flex-direction: column; align-items: center; justify-content: center; }
 .blackout.active { display: -webkit-flex; display: flex; }
-.wake-btn { background: #444; border: none; border-radius: 14px; padding: 14px 32px; color: #ccc; font-size: 18px; font-weight: 600; cursor: pointer; font-family: inherit; }
-.wake-btn:active { background: #555; }
+/* everything on this screen stays dim: it is a bedroom at night */
+.clock { font-size: 84px; font-weight: 700; letter-spacing: -3px; color: #4a6a90; line-height: 1; margin-bottom: 22px; }
+.clock small { font-size: 28px; letter-spacing: 0; margin-left: 10px; color: #35506f; }
+.bed { position: relative; width: 480px; height: 315px; }
+#bed-art, .bed svg { width: 100%; height: 100%; display: block; }
+.bed .zzz { display: block; top: 6px; right: 70px; color: #3a5576; -webkit-animation: zzz 2.4s steps(4) infinite; animation: zzz 2.4s steps(4) infinite; }
+.wake-btn { margin-top: 26px; background: #1a1a1a; border: none; border-radius: 14px; padding: 12px 30px; color: #6a6a6a; font-size: 18px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.wake-btn:active { background: #2a2a2a; }
 </style>
 </head>
 <body>
 
 <div class="blackout" id="blackout">
-  <button class="wake-btn" onclick="document.getElementById('blackout').classList.remove('active')">Wake</button>
+  <div class="clock" id="clock"></div>
+  <div class="bed"><div id="bed-art"></div><div class="zzz">z z</div></div>
+  <button class="wake-btn" onclick="sleepOff()">Wake</button>
 </div>
 
 <div class="loading" id="loading">Loading…</div>
@@ -233,7 +241,7 @@ html, body {
       <div class="tab active" id="tab-daily" onclick="switchTab('daily')">☀️ Daily<small id="daily-reset-label">starts again daily</small></div>
       <div class="tab" id="tab-weekly" onclick="switchTab('weekly')">📅 Weekly<small>starts again Friday</small></div>
     </div>
-    <button class="tool" onclick="document.getElementById('blackout').classList.add('active')" aria-label="Screen off">🌙</button>
+    <button class="tool" onclick="sleepOn()" aria-label="Screen off">🌙</button>
     <button class="tool" onclick="window.location.reload(true)" aria-label="Refresh">🔄</button>
   </div>
 
@@ -332,6 +340,36 @@ function petSvg(state){
   var out='<svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">';
   for(var k in px){var rc=k.split(',');out+='<rect x="'+rc[1]+'" y="'+rc[0]+'" width="1" height="1" fill="'+px[k]+'"/>';}
   return out+'</svg>';
+}
+
+/* ── Sleep screen: the pal tucked in bed, all colours dimmed. 32x21 grid, rects are [x,y,w,h,colour]. */
+var NIGHT={o:'#16202f',b:'#4a6f8c',s:'#3b5a75',w:'#4a6f8c',p:'#8a4a62',d:'#6e3a4e'};
+var BED_BACK=[[3,0,26,13,'#1d1829'],[4,1,24,12,'#2a2336'],[5,9,22,5,'#16202f'],[6,10,20,3,'#3a4f70']];
+var BED_FRONT=[[2,12,28,7,'#16202f'],[3,13,26,5,'#3d3870'],[3,13,26,1,'#4b4584'],[3,16,26,1,'#4b4584'],[2,19,28,2,'#2a2336'],[3,19,2,2,'#1d1829'],[27,19,2,2,'#1d1829']];
+function bedSvg(){
+  var out='<svg viewBox="0 0 32 21" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">';
+  function rect(r){out+='<rect x="'+r[0]+'" y="'+r[1]+'" width="'+r[2]+'" height="'+r[3]+'" fill="'+r[4]+'"/>';}
+  BED_BACK.forEach(rect);
+  var px={};
+  for(var r=0;r<10;r++){for(var c=0;c<16;c++){if(BODY[r][c]!=='.')px[r+','+c]=NIGHT[BODY[r][c]];}}
+  [BOW,CHEEKS,EYES_SHUT,MOUTH_SLEEP].forEach(function(layer){layer.forEach(function(p){px[p[0]+','+p[1]]=NIGHT[p[2]];});});
+  for(var k in px){var rc=k.split(',');out+='<rect x="'+(+rc[1]+8)+'" y="'+(+rc[0]+2)+'" width="1" height="1" fill="'+px[k]+'"/>';}
+  BED_FRONT.forEach(rect);
+  return out+'</svg>';
+}
+var clockTimer=null;
+function tickClock(){
+  var d=new Date(),h=d.getHours(),m=d.getMinutes();
+  document.getElementById('clock').innerHTML=((h%12)||12)+':'+(m<10?'0':'')+m+'<small>'+(h<12?'am':'pm')+'</small>';
+}
+function sleepOn(){
+  document.getElementById('bed-art').innerHTML=bedSvg();
+  tickClock();clearInterval(clockTimer);clockTimer=setInterval(tickClock,5000);
+  document.getElementById('blackout').classList.add('active');
+}
+function sleepOff(){
+  clearInterval(clockTimer);
+  document.getElementById('blackout').classList.remove('active');
 }
 
 var HEART='<svg viewBox="0 0 7 6" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><path fill="#ff8fb1" d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/><path fill="#2b4c7e" d="M1 0h2v1H1zM4 0h2v1H4zM0 1h1v2H0zM6 1h1v2H6zM1 3h1v1H1zM5 3h1v1H5zM2 4h1v1H2zM4 4h1v1H4zM3 5h1v1H3zM3 1h1v1H3z" opacity="0"/></svg>';

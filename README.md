@@ -16,6 +16,11 @@ die, so it never punishes a missed day. The pet is an original drawing, not a li
 | --- | --- | --- |
 | ![Chart with the pet asleep](docs/screenshots/chart-asleep.png) | ![Chart halfway](docs/screenshots/chart-halfway.png) | ![All done screen](docs/screenshots/chart-done.png) |
 
+The moon button turns the screen into a dark sleep screen: the pet tucked up in bed under a dim
+digital clock, with a Wake button to come back.
+
+![Sleep screen](docs/screenshots/chart-sleep.png)
+
 The parent-facing admin page sets the name, rewards and chores:
 
 ![Admin page](docs/screenshots/admin.png)
