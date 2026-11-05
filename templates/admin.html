@@ -17,7 +17,7 @@
   --text:   #1f3a5a;
   --muted:  #46688f;
   --pink:   #ff8fb1;
-  --pink-d: #e0608a;
+  --pink-d: #c2416f;
 }
 body { background: var(--sky); font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; color: var(--text); min-height: 100vh; }
 
@@ -28,10 +28,10 @@ header {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   position: sticky; top: 0; z-index: 10;
 }
-.logo { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+.logo { font-size: 20px; font-weight: 400; }
 .save-all-btn {
   background: var(--shell); border: 3px solid var(--navy); border-radius: 14px; box-shadow: 0 4px 0 var(--navy);
-  padding: 9px 22px; color: var(--text); font-size: 15px; font-weight: 700;
+  padding: 9px 22px; color: var(--text); font-size: 14px; font-weight: 700;
   cursor: pointer; font-family: inherit;
 }
 .save-all-btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--navy); }
@@ -40,7 +40,7 @@ header {
 .toast {
   position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
   background: var(--navy); color: #fff; padding: 10px 24px;
-  border-radius: 14px; font-size: 15px; font-weight: 700;
+  border-radius: 14px; font-size: 14px; font-weight: 400;
   opacity: 0; transition: opacity 0.3s; z-index: 100; pointer-events: none;
 }
 .toast.show { opacity: 1; }
@@ -49,13 +49,13 @@ main { max-width: 780px; margin: 0 auto; padding: 26px 16px 56px; display: flex;
 
 .card { background: #fff; border-radius: 20px; border: 3px solid var(--navy); box-shadow: 0 6px 0 var(--navy); overflow: hidden; }
 .card-header { padding: 14px 20px; border-bottom: 3px solid var(--navy); background: var(--sky2); display: flex; align-items: center; gap: 12px; }
-.card-header h2 { font-size: 17px; font-weight: 700; }
-.card-header .badge { background: #fff; border: 2px solid var(--navy); color: var(--text); font-size: 12px; font-weight: 700; padding: 3px 12px; border-radius: 20px; }
+.card-header h2 { font-size: 16px; font-weight: 700; }
+.card-header .badge { background: #fff; border: 2px solid var(--navy); color: var(--text); font-size: 12px; font-weight: 400; padding: 3px 12px; border-radius: 20px; }
 .card-header .badge.weekly { background: var(--pink); }
 .card-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
 
 .field-row { display: flex; flex-direction: column; gap: 6px; }
-.field-label { font-size: 14px; font-weight: 700; color: var(--muted); }
+.field-label { font-size: 14px; font-weight: 400; color: var(--muted); }
 .field-input, .em-inp, .cn-inp {
   border: 2px solid var(--navy); border-radius: 12px;
   color: var(--text); font-family: inherit; background: #fff;
@@ -65,14 +65,14 @@ main { max-width: 780px; margin: 0 auto; padding: 26px 16px 56px; display: flex;
 
 .chore-list { display: flex; flex-direction: column; gap: 10px; }
 .chore-row { display: flex; align-items: center; gap: 8px; }
-.chore-num { font-size: 13px; font-weight: 700; color: var(--muted); width: 18px; flex-shrink: 0; text-align: right; }
-.em-inp { width: 56px; flex-shrink: 0; padding: 8px 4px; font-size: 22px; text-align: center; }
-.cn-inp { flex: 1; min-width: 0; padding: 10px 12px; font-size: 15px; font-weight: 700; }
+.chore-num { font-size: 12px; font-weight: 400; color: var(--muted); width: 18px; flex-shrink: 0; text-align: right; }
+.em-inp { width: 56px; flex-shrink: 0; padding: 8px 4px; font-size: 20px; text-align: center; }
+.cn-inp { flex: 1; min-width: 0; padding: 10px 12px; font-size: 16px; font-weight: 400; }
 
 .preview-strip { background: var(--sky); border: 2px solid var(--navy); border-radius: 14px; padding: 12px 16px; }
-.preview-strip .plabel { font-size: 13px; color: var(--muted); font-weight: 700; }
+.preview-strip .plabel { font-size: 14px; color: var(--muted); font-weight: 400; }
 .preview-chores { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-.preview-chip { background: #fff; border: 2px solid var(--navy); border-radius: 20px; padding: 4px 12px; font-size: 13px; font-weight: 700; }
+.preview-chip { background: #fff; border: 2px solid var(--navy); border-radius: 20px; padding: 4px 12px; font-size: 14px; font-weight: 400; }
 </style>
 </head>
 <body>
@@ -102,13 +102,13 @@ main { max-width: 780px; margin: 0 auto; padding: 26px 16px 56px; display: flex;
   <!-- DAILY -->
   <div class="card">
     <div class="card-header">
-      <h2>☀️ Daily chores</h2>
+      <h2>Daily chores</h2>
       <span class="badge">starts again every day</span>
     </div>
     <div class="card-body">
       <div class="field-row">
         <label class="field-label" for="daily-reward">Daily reward</label>
-        <input class="field-input" id="daily-reward" type="text" maxlength="40" placeholder="e.g. 🍦 Ice cream">
+        <input class="field-input" id="daily-reward" type="text" maxlength="40" placeholder="e.g. Ice cream">
       </div>
       <div class="field-row">
         <div class="field-label">Chores</div>
@@ -124,13 +124,13 @@ main { max-width: 780px; margin: 0 auto; padding: 26px 16px 56px; display: flex;
   <!-- WEEKLY -->
   <div class="card">
     <div class="card-header">
-      <h2>📅 Weekly chores</h2>
+      <h2>Weekly chores</h2>
       <span class="badge weekly">starts again every Friday</span>
     </div>
     <div class="card-body">
       <div class="field-row">
         <label class="field-label" for="weekly-reward">Weekly reward</label>
-        <input class="field-input" id="weekly-reward" type="text" maxlength="40" placeholder="e.g. 🎬 Movie night">
+        <input class="field-input" id="weekly-reward" type="text" maxlength="40" placeholder="e.g. Movie night">
       </div>
       <div class="field-row">
         <div class="field-label">Chores</div>
